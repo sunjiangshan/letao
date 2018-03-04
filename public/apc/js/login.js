@@ -14,12 +14,12 @@ $(function(){
                 },
                 //长度校验
                 stringLength: {
-                  min: 6,
-                  max: 30,
-                  message: '用户名长度必须在6到30之间'
+                  min: 2,
+                  max: 6,
+                  message: '用户名长度必须在2到6之间'
                 },
                 callback: {
-                    message:"用户名不存在"
+                    message:"用户名或密码错误"
                 }
               }
             },
@@ -30,15 +30,50 @@ $(function(){
                   },
                   //长度校验
                   stringLength: {
-                    min: 5,
-                    max: 20,
-                    message: '密码长度必须在6到30之间'
+                    min: 2,
+                    max: 10,
+                    message: '密码长度必须在2到10之间'
                   },
                   callback: {
-                    message:"密码错误"
+                    message:"用户名或密码错误"
                   }
                 }
               }
         }   
     })
-})()
+    // 表单校验
+
+    $('form').on('success.form.bv',function(e){
+        e.preventDefault();
+        //阻止表单默认行为 通过AJAX进行提交
+        $.ajax({
+            type:'POST',
+            url:'/employee/employeeLogin',
+            // serialize方法是JQ的方法 用于表单序列化
+            data:$('form').serialize(),
+            daraType:'json',
+            success:function(info){
+               if(info.error===1000) {
+                //    alert('用户名错误')
+                   $('form').data('bootstrapValidator').updateStatus("username","INVALID","callback");
+               }
+               if(info.error===1001) {
+                // alert('密码错误')
+                    $('form').data('bootstrapValidator').updateStatus("password","INVALID","callback");
+                }
+                if(info.success) {
+                    location.href='index.html'
+                }
+            }
+
+        })
+    })
+
+    //表单提交的校验
+
+    $("[type='reset']").on('click',function(){
+        $('form').data('bootstrapValidator').resetForm();
+    })
+
+    //重置表单样式
+});
